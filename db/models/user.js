@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../../config/database");
+const bcrypt = require('bcrypt');
 
 module.exports = sequelize.define('user', {
     id: {
@@ -22,6 +23,17 @@ module.exports = sequelize.define('user', {
     },
     password: {
       type: DataTypes.STRING
+    },
+    confirmPassword: {
+        type: DataTypes.VIRTUAL,
+        set(value) {
+            if (value === this.password) {
+                const hashPassword = bcrypt.hashSync(value, 10);
+                this.setDataValue('password', hashPassword);
+            } else {
+                throw new Error('Passwords must match')
+            };
+        }
     },
     createdAt: {
       allowNull: false,
